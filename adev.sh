@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261113"
+VERSION_BIN="261114"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -36,12 +36,12 @@ RSHOW_RE=""
 RFUNC=0
 ELIST=0
 ELIST_RE=""
-EINFO=0
-EINFO_RE=""
 ESHOW=0
 EEDIT=0
 AINIT=0
 APULL=0
+AUNPACK=0
+ACONFIG=0
 ABUILD=0
 AINSTALL=0
 ASAVE=0
@@ -159,24 +159,19 @@ while [ $# -gt 0 ]; do
       EVAL=1
       shift
       ;;
-    -l)
+    -el)
       ELIST=1
       [[ ${2:0:1} != "-" ]] && ELIST_RE="$2" && shift
       QUIET=1
       shift
       ;;
-    -i)
-      EINFO=1
-      [[ ${2:0:1} != "-" ]] && EINFO_RE="$2" && shift
-      shift
-      ;;
-    -s)
+    -es)
       ESHOW=1
       ESHOW_RE="$2"
       QUIET=1
       shift; shift
       ;;
-    -E)
+    -ee)
       EEDIT=1
       shift
       ;;
@@ -205,15 +200,23 @@ while [ $# -gt 0 ]; do
       APULL=1
       shift
       ;;
+    -u)
+      AUNPACK=1
+      shift
+      ;;
+    -c)
+      ACONFIG=1
+      shift
+      ;;
     -b)
       ABUILD=1
       shift
       ;;
-    -I)
+    -i)
       AINSTALL=1
       shift
       ;;
-    -S)
+    -s)
       ASAVE=1
       shift
       ;;
@@ -248,14 +251,14 @@ while [ $# -gt 0 ]; do
 done
 
 if [[ $ARGC -eq 0 && "$A" = "adev" ]]; then
-  EINFO=1
+  ELIST=1
   QUIET=1
 fi
 
 if [[ $ARGC -eq 1 && "$A" = "adev" ]]; then
   if [ -n "${OPTS[0]}" ]; then
-    EINFO=1
-    EINFO_RE=${OPTS[0]}
+    ELIST=1
+    ELIST_RE=${OPTS[0]}
     QUIET=1
   fi
 fi
@@ -284,14 +287,16 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -init                     # app init"
   echo "$SN -P                        # app pull"
+  echo "$SN -u                        # app unpack"
+  echo "$SN -c                        # app config"
   echo "$SN -b                        # app build"
-  echo "$SN -I                        # app install"
-  echo "$SN -S                        # app save"
+  echo "$SN -i                        # app install"
+  echo "$SN -s                        # app save"
   echo "$SN -p                        # app push"
   echo ""
-  echo "$SN -l [re]                   # env list"
-  echo "$SN -s [re]                   # env show"
-  echo "$SN -E                        # env edit"
+  echo "$SN -el [re]                  # env list"
+  echo "$SN -es [re]                  # env show"
+  echo "$SN -ee                       # env edit"
   echo ""
   echo "$SN [re]                      # env list"
   echo ""
@@ -480,6 +485,18 @@ if [ $QUIET -eq 0 ]; then
     echo "f_pull    = [none]"
   fi
 
+  if [ -n "$(type -t do_unpack)" ]; then
+    echo "f_unpack  = do_unpack"
+  else
+    echo "f_unpack  = [none]"
+  fi
+
+  if [ -n "$(type -t do_config)" ]; then
+    echo "f_config  = do_config"
+  else
+    echo "f_config  = [none]"
+  fi
+
   if [ -n "$(type -t do_build)" ]; then
     echo "f_build   = do_build"
   else
@@ -650,6 +667,16 @@ if [ $RFUNC -eq 1 ]; then
     declare -f do_pull
   fi
 
+  if [ -n "$(type -t do_unpack)" ]; then
+    echo
+    declare -f do_unpack
+  fi
+
+  if [ -n "$(type -t do_config)" ]; then
+    echo
+    declare -f do_config
+  fi
+
   if [ -n "$(type -t do_build)" ]; then
     echo
     declare -f do_build
@@ -678,26 +705,9 @@ if [ $ELIST -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: ENV-LIST (re: *$ELIST_RE*)"
 
-  if [ -d $EDIR ]; then
-    cd  $EDIR
-    for f in $(ls -d *$ELIST_RE* 2>/dev/null); do
-      if [ "$f" != "recipes" ]; then
-        echo " - $f"
-      fi
-    done
-  fi
-fi
-
-#
-# stage: ENV-INFO
-#
-if [ $EINFO -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: ENV-INFO (re: *$EINFO_RE*)"
-
   (
   echo Env Recipes Ver
-  for f in $EDIR/*$EINFO_RE*; do
+  for f in $EDIR/*$ELIST_RE*; do
     (
     if [ -f $f ]; then
       unset INFO
@@ -720,7 +730,7 @@ if [ $EINFO -eq 1 ]; then
 
   i=0
 
-  for f in $EDIR/*$EINFO_RE*; do
+  for f in $EDIR/*$ELIST_RE*; do
     if [ -f $f ]; then
       ((i++))
     fi
@@ -798,7 +808,7 @@ if [ $AINIT -eq 1 ]; then
     do_init
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_init()"
+    echo "W: function not defined: do_init"
   fi
 fi
 
@@ -820,7 +830,51 @@ if [ $APULL -eq 1 ]; then
     do_pull
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_pull()"
+    echo "W: function not defined: do_pull"
+  fi
+fi
+
+#
+# stage: APP-UNPACK
+#
+if [ $AUNPACK -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-UNPACK"
+
+  if [ -n "$WDIR" ]; then
+    set -ex
+    cd $WDIR
+    { set +ex; } 2>/dev/null
+  fi
+
+  if [ -n "$(type -t do_unpack)" ]; then
+    set -ex
+    do_unpack
+    { set +ex; } 2>/dev/null
+  else
+    echo "W: function not defined: do_unpack"
+  fi
+fi
+
+#
+# stage: APP-CONFIG
+#
+if [ $ACONFIG -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-CONFIG"
+
+  if [ -n "$WDIR" ]; then
+    set -ex
+    cd $WDIR
+    { set +ex; } 2>/dev/null
+  fi
+
+  if [ -n "$(type -t do_config)" ]; then
+    set -ex
+    do_config
+    { set +ex; } 2>/dev/null
+  else
+    echo "W: function not defined: do_config"
   fi
 fi
 
@@ -842,7 +896,7 @@ if [ $ABUILD -eq 1 ]; then
     do_build
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_build()"
+    echo "W: function not defined: do_build"
   fi
 fi
 
@@ -859,12 +913,12 @@ if [ $AINSTALL -eq 1 ]; then
     { set +ex; } 2>/dev/null
   fi
 
-  if [ -n "$(type -t do_push)" ]; then
+  if [ -n "$(type -t do_install)" ]; then
     set -ex
     do_install
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_install()"
+    echo "W: function not defined: do_install"
   fi
 fi
 
@@ -886,7 +940,7 @@ if [ $ASAVE -eq 1 ]; then
     do_save
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_save()"
+    echo "W: function not defined: do_save"
   fi
 fi
 
@@ -908,7 +962,7 @@ if [ $APUSH -eq 1 ]; then
     do_push
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_push()"
+    echo "W: function not defined: do_push"
   fi
 fi
 

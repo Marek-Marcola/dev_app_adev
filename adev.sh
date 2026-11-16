@@ -397,7 +397,7 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   fi
 
-  if [ -f wine/wine.env ]; then
+  if [ -f wine/wine64.env ]; then
     for d in /usr/local/etc/adev.d/recipes /pub/pkb/pb/playbooks/999206-adev/files/recipes; do
       if [ -d $d ]; then
         set -ex
@@ -819,9 +819,9 @@ if [ $APULL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-PULL"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$SRC" ]; then
     set -ex
-    cd $WDIR
+    cd $SRC
     { set +ex; } 2>/dev/null
   fi
 
@@ -841,9 +841,9 @@ if [ $AUNPACK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-UNPACK"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$SRC" ]; then
     set -ex
-    cd $WDIR
+    cd $SRC
     { set +ex; } 2>/dev/null
   fi
 
@@ -863,9 +863,9 @@ if [ $ACONFIG -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CONFIG"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$S" ]; then
     set -ex
-    cd $WDIR
+    cd $S
     { set +ex; } 2>/dev/null
   fi
 
@@ -885,9 +885,9 @@ if [ $ABUILD -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-BUILD"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$S" ]; then
     set -ex
-    cd $WDIR
+    cd $S
     { set +ex; } 2>/dev/null
   fi
 
@@ -907,9 +907,9 @@ if [ $AINSTALL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-INSTALL"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$S" ]; then
     set -ex
-    cd $WDIR
+    cd $S
     { set +ex; } 2>/dev/null
   fi
 
@@ -929,9 +929,9 @@ if [ $ASAVE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-SAVE"
 
-  if [ -n "$WDIR" ]; then
+  if [ -n "$SRC" ]; then
     set -ex
-    cd $WDIR
+    cd $SRC
     { set +ex; } 2>/dev/null
   fi
 
@@ -951,9 +951,9 @@ if [ $APUSH -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-PUSH"
 
-  if [ "$WDIR" != "" ]; then
+  if [ "$SRC" != "" ]; then
     set -ex
-    cd $WDIR
+    cd $SRC
     { set +ex; } 2>/dev/null
   fi
 

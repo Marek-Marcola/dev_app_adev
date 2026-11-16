@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261114"
+VERSION_BIN="261116"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -9,9 +9,6 @@ ID="[${SN%.sh}]"
 : ${OSA:=""}
 : ${OSC:=""}
 : ${OSE:=""}
-
-: ${V:=""}
-: ${S:=""}
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -315,10 +312,10 @@ for f in /usr/local/etc/adev.env $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV; do
   fi
 done
 
-for f in "${RECIPES[@]}"; do
-  if [ -e $RDIR/$f ]; then
-    [[ "$RFILE" != "" ]] && RFILE="$RFILE $RDIR/$f" || RFILE="$RDIR/$f"
-    . $RDIR/$f
+for r in "${RECIPES[@]}"; do
+  if [ -e $RDIR/${r}.env ]; then
+    [[ "$RFILE" != "" ]] && RFILE="$RFILE $RDIR/${r}.env" || RFILE="$RDIR/${r}.env"
+    . $RDIR/${r}.env
   fi
 done
 
@@ -400,11 +397,11 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   fi
 
-  if [ -d recipes ]; then
+  if [ -f wine/wine.env ]; then
     for d in /usr/local/etc/adev.d/recipes /pub/pkb/pb/playbooks/999206-adev/files/recipes; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai $EVAL_OPT recipes/ $d
+        rsync -ai $EVAL_OPT */*.env $d
         { set +ex; } 2>/dev/null
       fi
     done

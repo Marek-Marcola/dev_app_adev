@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261116"
+VERSION_BIN="261117"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -916,6 +916,7 @@ if [ $AINSTALL -eq 1 ]; then
   if [ -n "$(type -t do_install)" ]; then
     set -ex
     do_install
+    ls -lh $DST
     { set +ex; } 2>/dev/null
   else
     echo "W: function not defined: do_install"
@@ -938,6 +939,7 @@ if [ $ASAVE -eq 1 ]; then
   if [ -n "$(type -t do_save)" ]; then
     set -ex
     do_save
+    ls -lh $SRC
     { set +ex; } 2>/dev/null
   else
     echo "W: function not defined: do_save"

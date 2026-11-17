@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261117"
+VERSION_BIN="261118"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -221,6 +221,17 @@ while [ $# -gt 0 ]; do
       APUSH=1
       shift
       ;;
+    -bp)
+      AINIT=1
+      APULL=1
+      AUNPACK=1
+      ACONFIG=1
+      ABUILD=1
+      AINSTALL=1
+      ASAVE=1
+      APUSH=1
+      shift
+      ;;
     -V)
       V="$2"
       shift; shift
@@ -290,6 +301,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -i                        # app install"
   echo "$SN -s                        # app save"
   echo "$SN -p                        # app push"
+  echo "$SN -bp                       # alias -init -P -u -c -b -i -s -p"
   echo ""
   echo "$SN -el [re]                  # env list"
   echo "$SN -es [re]                  # env show"
@@ -305,7 +317,7 @@ fi
 #
 # stage: CONFIG
 #
-for f in /usr/local/etc/adev.env $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV; do
+for f in $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV /usr/local/etc/adev.env; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
     . $f
@@ -797,14 +809,9 @@ if [ $AINIT -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-INIT"
 
-  if [ -n "$WDIR" ]; then
-    set -ex
-    cd $WDIR
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_init)" ]; then
     set -ex
+    [[ -n "$SRC" ]] && cd $SRC
     do_init
     { set +ex; } 2>/dev/null
   else
@@ -819,14 +826,9 @@ if [ $APULL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-PULL"
 
-  if [ -n "$SRC" ]; then
-    set -ex
-    cd $SRC
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_pull)" ]; then
     set -ex
+    [[ -n "$SRC" ]] && cd $SRC
     do_pull
     { set +ex; } 2>/dev/null
   else
@@ -841,14 +843,9 @@ if [ $AUNPACK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-UNPACK"
 
-  if [ -n "$SRC" ]; then
-    set -ex
-    cd $SRC
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_unpack)" ]; then
     set -ex
+    [[ -n "$SRC" ]] && cd $SRC
     do_unpack
     { set +ex; } 2>/dev/null
   else
@@ -863,14 +860,9 @@ if [ $ACONFIG -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CONFIG"
 
-  if [ -n "$S" ]; then
-    set -ex
-    cd $S
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_config)" ]; then
     set -ex
+    [[ -n "$S" ]] && cd $S
     do_config
     { set +ex; } 2>/dev/null
   else
@@ -885,14 +877,9 @@ if [ $ABUILD -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-BUILD"
 
-  if [ -n "$S" ]; then
-    set -ex
-    cd $S
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_build)" ]; then
     set -ex
+    [[ -n "$S" ]] && cd $S
     do_build
     { set +ex; } 2>/dev/null
   else
@@ -907,14 +894,9 @@ if [ $AINSTALL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-INSTALL"
 
-  if [ -n "$S" ]; then
-    set -ex
-    cd $S
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_install)" ]; then
     set -ex
+    [[ -n "$S" ]] && cd $S
     do_install
     ls -lh $DST
     { set +ex; } 2>/dev/null
@@ -930,14 +912,9 @@ if [ $ASAVE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-SAVE"
 
-  if [ -n "$SRC" ]; then
-    set -ex
-    cd $SRC
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_save)" ]; then
     set -ex
+    [[ -n "$S" ]] && cd $S
     do_save
     ls -lh $SRC
     { set +ex; } 2>/dev/null
@@ -953,14 +930,9 @@ if [ $APUSH -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-PUSH"
 
-  if [ "$SRC" != "" ]; then
-    set -ex
-    cd $SRC
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -n "$(type -t do_push)" ]; then
     set -ex
+    [[ -n "$S" ]] && cd $S
     do_push
     { set +ex; } 2>/dev/null
   else

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261118"
+VERSION_BIN="261119"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -41,6 +41,7 @@ AUNPACK=0
 ACONFIG=0
 ABUILD=0
 AINSTALL=0
+AVERIFY=0
 ASAVE=0
 APUSH=0
 EVAL=0
@@ -213,6 +214,10 @@ while [ $# -gt 0 ]; do
       AINSTALL=1
       shift
       ;;
+    -v)
+      AVERIFY=1
+      shift
+      ;;
     -s)
       ASAVE=1
       shift
@@ -228,6 +233,7 @@ while [ $# -gt 0 ]; do
       ACONFIG=1
       ABUILD=1
       AINSTALL=1
+      AVERIFY=1
       ASAVE=1
       APUSH=1
       shift
@@ -299,9 +305,10 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -c                        # app config"
   echo "$SN -b                        # app build"
   echo "$SN -i                        # app install"
+  echo "$SN -v                        # app verify"
   echo "$SN -s                        # app save"
   echo "$SN -p                        # app push"
-  echo "$SN -bp                       # alias -init -P -u -c -b -i -s -p"
+  echo "$SN -bp                       # alias -init -P -u -c -b -i -v -s -p"
   echo ""
   echo "$SN -el [re]                  # env list"
   echo "$SN -es [re]                  # env show"
@@ -521,6 +528,12 @@ if [ $QUIET -eq 0 ]; then
     echo "f_install = [none]"
   fi
 
+  if [ -n "$(type -t do_verify)" ]; then
+    echo "f_verify  = do_verify"
+  else
+    echo "f_verify  = [none]"
+  fi
+
   if [ -n "$(type -t do_save)" ]; then
     echo "f_save    = do_save"
   else
@@ -699,6 +712,11 @@ if [ $RFUNC -eq 1 ]; then
     declare -f do_install
   fi
 
+  if [ -n "$(type -t do_verify)" ]; then
+    echo
+    declare -f do_verify
+  fi
+
   if [ -n "$(type -t do_save)" ]; then
     echo
     declare -f do_save
@@ -811,7 +829,7 @@ if [ $AINIT -eq 1 ]; then
 
   if [ -n "$(type -t do_init)" ]; then
     set -ex
-    [[ -n "$SRC" ]] && cd $SRC
+    cd $SRC
     do_init
     { set +ex; } 2>/dev/null
   else
@@ -828,7 +846,7 @@ if [ $APULL -eq 1 ]; then
 
   if [ -n "$(type -t do_pull)" ]; then
     set -ex
-    [[ -n "$SRC" ]] && cd $SRC
+    cd $SRC
     do_pull
     { set +ex; } 2>/dev/null
   else
@@ -845,7 +863,7 @@ if [ $AUNPACK -eq 1 ]; then
 
   if [ -n "$(type -t do_unpack)" ]; then
     set -ex
-    [[ -n "$SRC" ]] && cd $SRC
+    cd $SRC
     do_unpack
     { set +ex; } 2>/dev/null
   else
@@ -862,7 +880,7 @@ if [ $ACONFIG -eq 1 ]; then
 
   if [ -n "$(type -t do_config)" ]; then
     set -ex
-    [[ -n "$S" ]] && cd $S
+    cd $S
     do_config
     { set +ex; } 2>/dev/null
   else
@@ -879,7 +897,7 @@ if [ $ABUILD -eq 1 ]; then
 
   if [ -n "$(type -t do_build)" ]; then
     set -ex
-    [[ -n "$S" ]] && cd $S
+    cd $S
     do_build
     { set +ex; } 2>/dev/null
   else
@@ -896,12 +914,29 @@ if [ $AINSTALL -eq 1 ]; then
 
   if [ -n "$(type -t do_install)" ]; then
     set -ex
-    [[ -n "$S" ]] && cd $S
+    cd $S
     do_install
     ls -lh $DST
     { set +ex; } 2>/dev/null
   else
     echo "W: function not defined: do_install"
+  fi
+fi
+
+#
+# stage: APP-VERIFY
+#
+if [ $AVERIFY -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-VERIFY"
+
+  if [ -n "$(type -t do_verify)" ]; then
+    set -ex
+    cd $S
+    do_verify
+    { set +ex; } 2>/dev/null
+  else
+    echo "W: function not defined: do_verify"
   fi
 fi
 
@@ -914,7 +949,7 @@ if [ $ASAVE -eq 1 ]; then
 
   if [ -n "$(type -t do_save)" ]; then
     set -ex
-    [[ -n "$S" ]] && cd $S
+    cd $S
     do_save
     ls -lh $SRC
     { set +ex; } 2>/dev/null
@@ -932,7 +967,7 @@ if [ $APUSH -eq 1 ]; then
 
   if [ -n "$(type -t do_push)" ]; then
     set -ex
-    [[ -n "$S" ]] && cd $S
+    cd $S
     do_push
     { set +ex; } 2>/dev/null
   else

@@ -384,15 +384,15 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
 
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
-  if [ -f adev.sh ]; then
+  if [[ -f adev.sh ]]; then
     for d in /usr/local/bin /pub/pkb/pb/playbooks/999206-adev/files; do
-      if [ -d $d ]; then
+      if [[ -d $d ]]; then
         set -ex
         rsync -ai $EVAL_OPT adev.sh $d/adev.sh
         { set +ex; } 2>/dev/null
       fi
     done
-  elif [ -f /pub/pkb/pb/playbooks/999206-adev/files/adev.sh ]; then
+  elif [[ -f /pub/pkb/pb/playbooks/999206-adev/files/adev.sh ]]; then
     for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
       rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999206-adev/files/adev.sh $h:/usr/local/bin/adev.sh
@@ -400,15 +400,15 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   fi
 
-  if [ -f zlocal-adev.sh ]; then
+  if [[ -f zlocal-adev.sh ]]; then
     for d in /etc/profile.d/ /pub/pkb/pb/playbooks/999206-adev/files/; do
-      if [ -d $d ]; then
+      if [[ -d $d ]]; then
         set -ex
         rsync -ai $EVAL_OPT zlocal-adev.sh $d
         { set +ex; } 2>/dev/null
       fi
     done
-  elif [ -f /pub/pkb/pb/playbooks/999206-adev/files/zlocal-adev.sh ]; then
+  elif [[ -f /pub/pkb/pb/playbooks/999206-adev/files/zlocal-adev.sh ]]; then
     for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
       rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999206-adev/files/zlocal-adev.sh $h:/etc/profile.d/zlocal-adev.sh
@@ -416,15 +416,15 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   fi
 
-  if [ -n "$(ls ./*/*.env 2>/dev/null)" ]; then
+  if [[ -f README.md ]] && [[ -n "$(ls ./*/*.env 2>/dev/null)" ]]; then
     for d in /usr/local/etc/adev.d/procs /pub/pkb/pb/playbooks/999206-adev/files/procs; do
-      if [ -d $d ]; then
+      if [[ -d $d ]]; then
         set -ex
         rsync -ai $EVAL_OPT */*.env $d
         { set +ex; } 2>/dev/null
       fi
     done
-  elif [ -d /pub/pkb/pb/playbooks/999206-adev/files/procs ]; then
+  elif [[ -d /pub/pkb/pb/playbooks/999206-adev/files/procs ]]; then
     for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
       rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999206-adev/files/procs/ $h:/usr/local/etc/adev.d/procs/

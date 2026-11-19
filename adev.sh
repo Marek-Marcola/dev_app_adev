@@ -58,7 +58,7 @@ s=0
 : ${APN:=$(echo $A|cut -d- -f2)}
 : ${API:=$(echo $A|cut -d- -f3-)}
 : ${EDIR:="/usr/local/etc/adev.d"}
-: ${RDIR:="/usr/local/etc/adev.d/recipes"}
+: ${RDIR:="/usr/local/etc/adev.d/procs"}
 : ${LDIR:="/usr/local/bin/alias-adev"}
 : ${DDIR:="/var/backup/adev"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
@@ -169,7 +169,7 @@ while [ $# -gt 0 ]; do
       QUIET=1
       shift; shift
       ;;
-    -ee)
+    -E)
       EEDIT=1
       shift
       ;;
@@ -295,9 +295,9 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -L  [-x]                  # link show,run"
   echo "$SN -Lc                       # link check"
   echo ""
-  echo "$SN -r                        # recipe info"
-  echo "$SN -rs [re]                  # recipe show"
-  echo "$SN -f                        # recipe functions"
+  echo "$SN -r                        # procedure info"
+  echo "$SN -rs [re]                  # procedure show"
+  echo "$SN -f                        # procedure functions"
   echo ""
   echo "$SN -init                     # app init"
   echo "$SN -P                        # app pull"
@@ -312,7 +312,7 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -el [re]                  # env list"
   echo "$SN -es [re]                  # env show"
-  echo "$SN -ee                       # env edit"
+  echo "$SN -E                        # env edit"
   echo ""
   echo "$SN [re]                      # env list"
   echo ""
@@ -331,7 +331,7 @@ for f in $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV /usr/local/etc/adev.env; do
   fi
 done
 
-for r in "${RECIPES[@]}"; do
+for r in "${PROCS[@]}"; do
   if [ -e $RDIR/${r}.env ]; then
     [[ "$RFILE" != "" ]] && RFILE="$RFILE $RDIR/${r}.env" || RFILE="$RDIR/${r}.env"
     . $RDIR/${r}.env
@@ -416,18 +416,18 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   fi
 
-  if [ -f wine/wine64.env ]; then
-    for d in /usr/local/etc/adev.d/recipes /pub/pkb/pb/playbooks/999206-adev/files/recipes; do
+  if [ -n "$(ls ./*/*.env 2>/dev/null)" ]; then
+    for d in /usr/local/etc/adev.d/procs /pub/pkb/pb/playbooks/999206-adev/files/procs; do
       if [ -d $d ]; then
         set -ex
         rsync -ai $EVAL_OPT */*.env $d
         { set +ex; } 2>/dev/null
       fi
     done
-  elif [ -d /pub/pkb/pb/playbooks/999206-adev/files/recipes ]; then
+  elif [ -d /pub/pkb/pb/playbooks/999206-adev/files/procs ]; then
     for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999206-adev/files/recipes/ $h:/usr/local/etc/adev.d/recipes/
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999206-adev/files/procs/ $h:/usr/local/etc/adev.d/procs/
       { set +ex; } 2>/dev/null
     done
   fi
@@ -477,7 +477,7 @@ if [ $QUIET -eq 0 ]; then
   echo "OSA       = ${OSA:-[none]}"
   echo "OSE       = ${OSE:-[none]}"
   echo "envs      = ${EFILE:-[none]}"
-  echo "recipes   = ${RFILE:-[none]}"
+  echo "procs     = ${RFILE:-[none]}"
   echo "App       = ${A:-[none]}"
   echo "APN       = ${APN:-[none]}"
   echo "API       = ${API:-[none]}"
@@ -625,14 +625,14 @@ if [ $LINK_CHECK -ne 0 ]; then
 fi
 
 #
-# stage: RECIPE-INFO
+# stage: PROCS-INFO
 #
 if [ $RINFO -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: RECIPE-INFO (re: *$RINFO_RE*)"
+  echo "$ID: stage: PROCS-INFO (re: *$RINFO_RE*)"
 
   (
-  echo Recipe Info
+  echo Procedure Info
   for f in $RDIR/*$RINFO_RE*; do
     (
     if [ -f $f ]; then
@@ -661,27 +661,27 @@ if [ $RINFO -eq 1 ]; then
 fi
 
 #
-# stage: RECIPE-SHOW
+# stage: PROCS-SHOW
 #
 if [ $RSHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: RECIPE-SHOW (re: *$RSHOW_RE*)"
+  echo "$ID: stage: PROCS-SHOW (re: *$RSHOW_RE*)"
 
   if [ -d $RDIR ]; then
     cd  $RDIR
     for f in $(ls *$RSHOW_RE* 2>/dev/null); do
-      echo "### recipe: $f"
+      echo "### proc: $f"
       cat $f
     done
   fi
 fi
 
 #
-# stage: RECIPE-FUNCIONS
+# stage: PROCS-FUNCIONS
 #
 if [ $RFUNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: RECIPE-FUNCIONS"
+  echo "$ID: stage: PROCS-FUNCIONS"
 
   if [ -n "$(type -t do_init)" ]; then
     declare -f do_init
@@ -736,15 +736,15 @@ if [ $ELIST -eq 1 ]; then
   echo "$ID: stage: ENV-LIST (re: *$ELIST_RE*)"
 
   (
-  echo Env Recipes Ver
+  echo Env Procs Ver
   for f in $EDIR/*$ELIST_RE*; do
     (
     if [ -f $f ]; then
       unset INFO
       . $f
 
-      if [[ -n "$RECIPES" ]]; then
-        P=$(echo "${RECIPES[@]}"|sed 's/ /,/g')
+      if [[ -n "$PROCS" ]]; then
+        P=$(echo "${PROCS[@]}"|sed 's/ /,/g')
       else
         P="-"
       fi

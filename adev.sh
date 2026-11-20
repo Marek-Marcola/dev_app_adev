@@ -203,6 +203,10 @@ while [ $# -gt 0 ]; do
       TUNPACK=1
       shift
       ;;
+    -z)
+      TPATCH=1
+      shift
+      ;;
     -c)
       TCONFIGURE=1
       shift
@@ -231,6 +235,7 @@ while [ $# -gt 0 ]; do
       TINIT=1
       TPULL=1
       TUNPACK=1
+      TPATCH=1
       TCONFIGURE=1
       TBUILD=1
       TINSTALL=1
@@ -303,13 +308,14 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -init                     # task init"
   echo "$SN -P                        # task pull"
   echo "$SN -u                        # task unpack"
+  echo "$SN -z                        # task patch"
   echo "$SN -c                        # task configure"
   echo "$SN -b                        # task build"
   echo "$SN -i                        # task install"
   echo "$SN -v                        # task verify"
   echo "$SN -s                        # task save"
   echo "$SN -p                        # task push"
-  echo "$SN -bp                       # alias -init -P -u -c -b -i -v -s -p"
+  echo "$SN -bp                       # alias -init -P -u -z -c -b -i -v -s -p"
   echo ""
   echo "$SN -el [re]                  # env list"
   echo "$SN -es [re]                  # env show"
@@ -511,6 +517,12 @@ if [ $QUIET -eq 0 ]; then
     echo "t_unpack    = [none]"
   fi
 
+  if [ -n "$(type -t do_patch)" ]; then
+    echo "t_patch     = do_patch"
+  else
+    echo "t_patch     = [none]"
+  fi
+
   if [ -n "$(type -t do_configure)" ]; then
     echo "t_configure = do_configure"
   else
@@ -698,6 +710,11 @@ if [ $RTASK -eq 1 ]; then
     declare -f do_unpack
   fi
 
+  if [ -n "$(type -t do_patch)" ]; then
+    echo
+    declare -f do_patch
+  fi
+
   if [ -n "$(type -t do_configure)" ]; then
     echo
     declare -f do_configure
@@ -869,6 +886,23 @@ if [ $TUNPACK -eq 1 ]; then
     { set +ex; } 2>/dev/null
   else
     echo "W: task not defined: do_unpack"
+  fi
+fi
+
+#
+# stage: TASK-PATCH
+#
+if [ $TPATCH -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: TASK-PATCH"
+
+  if [ -n "$(type -t do_patch)" ]; then
+    set -ex
+    cd $S
+    do_patch
+    { set +ex; } 2>/dev/null
+  else
+    echo "W: task not defined: do_patch"
   fi
 fi
 

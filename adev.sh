@@ -26,8 +26,8 @@ DEBUG=0
 DEBUG_OPTS=""
 LINK=0
 LINK_CHECK=0
-RINFO=0
-RINFO_RE=""
+PINFO=0
+PINFO_RE=""
 RSHOW=0
 RSHOW_RE=""
 RTASK=0
@@ -43,6 +43,7 @@ TCONFIGURE=0
 TBUILD=0
 TINSTALL=0
 TVERIFY=0
+TMISC=0
 TSAVE=0
 TPUSH=0
 EVAL=0
@@ -59,7 +60,7 @@ s=0
 : ${APN:=$(echo $A|cut -d- -f2)}
 : ${API:=$(echo $A|cut -d- -f3-)}
 : ${EDIR:="/usr/local/etc/adev.d"}
-: ${RDIR:="/usr/local/etc/adev.d/procs"}
+: ${PDIR:="/usr/local/etc/adev.d/procs"}
 : ${LDIR:="/usr/local/bin/alias-adev"}
 : ${DDIR:="/var/backup/adev"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
@@ -175,8 +176,8 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -r)
-      RINFO=1
-      [[ ${2:0:1} != "-" ]] && RINFO_RE="$2" && shift
+      PINFO=1
+      [[ ${2:0:1} != "-" ]] && PINFO_RE="$2" && shift
       QUIET=1
       shift
       ;;
@@ -223,6 +224,10 @@ while [ $# -gt 0 ]; do
       TVERIFY=1
       shift
       ;;
+    -m)
+      TMISC=1
+      shift
+      ;;
     -s)
       TSAVE=1
       shift
@@ -240,6 +245,7 @@ while [ $# -gt 0 ]; do
       TBUILD=1
       TINSTALL=1
       TVERIFY=1
+      TMISC=1
       TSAVE=1
       TPUSH=1
       shift
@@ -313,9 +319,10 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -b                        # task build"
   echo "$SN -i                        # task install"
   echo "$SN -v                        # task verify"
+  echo "$SN -m                        # task misc"
   echo "$SN -s                        # task save"
   echo "$SN -p                        # task push"
-  echo "$SN -bp                       # alias -init -P -u -z -c -b -i -v -s -p"
+  echo "$SN -bp                       # alias -init -P -u -z -c -b -i -v -m -s -p"
   echo ""
   echo "$SN -el [re]                  # env list"
   echo "$SN -es [re]                  # env show"
@@ -339,9 +346,9 @@ for f in $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV /usr/local/etc/adev.env; do
 done
 
 for r in "${PROC[@]}"; do
-  if [ -e $RDIR/${r}.env ]; then
-    [[ "$RFILE" != "" ]] && RFILE="$RFILE $RDIR/${r}.env" || RFILE="$RDIR/${r}.env"
-    . $RDIR/${r}.env
+  if [ -e $PDIR/${r}.env ]; then
+    [[ "$PFILE" != "" ]] && PFILE="$PFILE $PDIR/${r}.env" || PFILE="$PDIR/${r}.env"
+    . $PDIR/${r}.env
   fi
 done
 
@@ -478,13 +485,13 @@ if [ $QUIET -eq 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: INFO"
 
-  [[ -n $INFO ]] && echo "info      = $INFO"
+  [[ -n "$INFO" ]] && echo "info        = $INFO"
   echo "cwd         = $(pwd -P)"
   echo "OSN         = ${OSN:-[none]}"
   echo "OSA         = ${OSA:-[none]}"
   echo "OSE         = ${OSE:-[none]}"
   echo "envs        = ${EFILE:-[none]}"
-  echo "proc        = ${RFILE:-[none]}"
+  echo "proc        = ${PFILE:-[none]}"
   echo "App         = ${A:-[none]}"
   echo "APN         = ${APN:-[none]}"
   echo "API         = ${API:-[none]}"
@@ -545,6 +552,12 @@ if [ $QUIET -eq 0 ]; then
     echo "t_verify    = do_verify"
   else
     echo "t_verify    = [none]"
+  fi
+
+  if [ -n "$(type -t do_misc)" ]; then
+    echo "t_misc      = do_misc"
+  else
+    echo "t_misc      = [none]"
   fi
 
   if [ -n "$(type -t do_save)" ]; then
@@ -640,13 +653,13 @@ fi
 #
 # stage: PROCEDURE-INFO
 #
-if [ $RINFO -eq 1 ]; then
+if [ $PINFO -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PROCEDURE-INFO (re: *$RINFO_RE*)"
+  echo "$ID: stage: PROCEDURE-INFO (re: *$PINFO_RE*)"
 
   (
   echo Procedure Info
-  for f in $RDIR/*$RINFO_RE*; do
+  for f in $PDIR/*$PINFO_RE*; do
     (
     if [ -f $f ]; then
       unset INFO
@@ -662,7 +675,7 @@ if [ $RINFO -eq 1 ]; then
 
   i=0
 
-  for f in $RDIR/*$RINFO_RE*; do
+  for f in $PDIR/*$PINFO_RE*; do
     if [ -f $f ]; then
       ((i++))
     fi
@@ -680,8 +693,8 @@ if [ $RSHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: PROCEDURE-SHOW (re: *$RSHOW_RE*)"
 
-  if [ -d $RDIR ]; then
-    cd  $RDIR
+  if [ -d $PDIR ]; then
+    cd  $PDIR
     for f in $(ls *$RSHOW_RE* 2>/dev/null); do
       echo "### proc: $f"
       cat $f
@@ -733,6 +746,11 @@ if [ $RTASK -eq 1 ]; then
   if [ -n "$(type -t do_verify)" ]; then
     echo
     declare -f do_verify
+  fi
+
+  if [ -n "$(type -t do_misc)" ]; then
+    echo
+    declare -f do_misc
   fi
 
   if [ -n "$(type -t do_save)" ]; then
@@ -972,6 +990,23 @@ if [ $TVERIFY -eq 1 ]; then
     { set +ex; } 2>/dev/null
   else
     echo "W: task not defined: do_verify"
+  fi
+fi
+
+#
+# stage: TASK-MISC
+#
+if [ $TMISC -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: TASK-MISC"
+
+  if [ -n "$(type -t do_misc)" ]; then
+    set -ex
+    cd $S
+    do_misc
+    { set +ex; } 2>/dev/null
+  else
+    echo "W: task not defined: do_misc"
   fi
 fi
 

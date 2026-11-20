@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261119"
+VERSION_BIN="261120"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -331,7 +331,7 @@ for f in $EDIR/$A $HOME/.adev.env .adev.env $ADEVENV /usr/local/etc/adev.env; do
   fi
 done
 
-for r in "${PROCS[@]}"; do
+for r in "${PROC[@]}"; do
   if [ -e $RDIR/${r}.env ]; then
     [[ "$RFILE" != "" ]] && RFILE="$RFILE $RDIR/${r}.env" || RFILE="$RDIR/${r}.env"
     . $RDIR/${r}.env
@@ -477,7 +477,7 @@ if [ $QUIET -eq 0 ]; then
   echo "OSA       = ${OSA:-[none]}"
   echo "OSE       = ${OSE:-[none]}"
   echo "envs      = ${EFILE:-[none]}"
-  echo "procs     = ${RFILE:-[none]}"
+  echo "proc      = ${RFILE:-[none]}"
   echo "App       = ${A:-[none]}"
   echo "APN       = ${APN:-[none]}"
   echo "API       = ${API:-[none]}"
@@ -625,11 +625,11 @@ if [ $LINK_CHECK -ne 0 ]; then
 fi
 
 #
-# stage: PROCS-INFO
+# stage: PROCEDURE-INFO
 #
 if [ $RINFO -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PROCS-INFO (re: *$RINFO_RE*)"
+  echo "$ID: stage: PROCEDURE-INFO (re: *$RINFO_RE*)"
 
   (
   echo Procedure Info
@@ -661,11 +661,11 @@ if [ $RINFO -eq 1 ]; then
 fi
 
 #
-# stage: PROCS-SHOW
+# stage: PROCEDURE-SHOW
 #
 if [ $RSHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PROCS-SHOW (re: *$RSHOW_RE*)"
+  echo "$ID: stage: PROCEDURE-SHOW (re: *$RSHOW_RE*)"
 
   if [ -d $RDIR ]; then
     cd  $RDIR
@@ -677,11 +677,11 @@ if [ $RSHOW -eq 1 ]; then
 fi
 
 #
-# stage: PROCS-FUNCIONS
+# stage: PROCOCEDURE-FUNCIONS
 #
 if [ $RFUNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PROCS-FUNCIONS"
+  echo "$ID: stage: PROCEDURE-FUNCIONS"
 
   if [ -n "$(type -t do_init)" ]; then
     declare -f do_init
@@ -736,15 +736,15 @@ if [ $ELIST -eq 1 ]; then
   echo "$ID: stage: ENV-LIST (re: *$ELIST_RE*)"
 
   (
-  echo Env Procs Ver
+  echo Env Procedures Ver
   for f in $EDIR/*$ELIST_RE*; do
     (
     if [ -f $f ]; then
       unset INFO
       . $f
 
-      if [[ -n "$PROCS" ]]; then
-        P=$(echo "${PROCS[@]}"|sed 's/ /,/g')
+      if [[ -n "$PROC" ]]; then
+        P=$(echo "${PROC[@]}"|sed 's/ /,/g')
       else
         P="-"
       fi

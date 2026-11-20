@@ -30,7 +30,7 @@ RINFO=0
 RINFO_RE=""
 RSHOW=0
 RSHOW_RE=""
-RFUNC=0
+RTASK=0
 ELIST=0
 ELIST_RE=""
 ESHOW=0
@@ -185,8 +185,8 @@ while [ $# -gt 0 ]; do
       QUIET=1
       shift
       ;;
-    -f)
-      RFUNC=1
+    -t)
+      RTASK=1
       QUIET=1
       shift
       ;;
@@ -297,17 +297,17 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -r                        # procedure info"
   echo "$SN -rs [re]                  # procedure show"
-  echo "$SN -f                        # procedure functions"
+  echo "$SN -t                        # procedure tasks"
   echo ""
-  echo "$SN -init                     # app init"
-  echo "$SN -P                        # app pull"
-  echo "$SN -u                        # app unpack"
-  echo "$SN -c                        # app config"
-  echo "$SN -b                        # app build"
-  echo "$SN -i                        # app install"
-  echo "$SN -v                        # app verify"
-  echo "$SN -s                        # app save"
-  echo "$SN -p                        # app push"
+  echo "$SN -init                     # task init"
+  echo "$SN -P                        # task pull"
+  echo "$SN -u                        # task unpack"
+  echo "$SN -c                        # task config"
+  echo "$SN -b                        # task build"
+  echo "$SN -i                        # task install"
+  echo "$SN -v                        # task verify"
+  echo "$SN -s                        # task save"
+  echo "$SN -p                        # task push"
   echo "$SN -bp                       # alias -init -P -u -c -b -i -v -s -p"
   echo ""
   echo "$SN -el [re]                  # env list"
@@ -493,57 +493,57 @@ if [ $QUIET -eq 0 ]; then
   echo "comm      = ${COMM:-[none]}"
 
   if [ -n "$(type -t do_init)" ]; then
-    echo "f_init    = do_init"
+    echo "t_init    = do_init"
   else
-    echo "f_init    = [none]"
+    echo "t_init    = [none]"
   fi
 
   if [ -n "$(type -t do_pull)" ]; then
-    echo "f_pull    = do_pull"
+    echo "t_pull    = do_pull"
   else
-    echo "f_pull    = [none]"
+    echo "t_pull    = [none]"
   fi
 
   if [ -n "$(type -t do_unpack)" ]; then
-    echo "f_unpack  = do_unpack"
+    echo "t_unpack  = do_unpack"
   else
-    echo "f_unpack  = [none]"
+    echo "t_unpack  = [none]"
   fi
 
   if [ -n "$(type -t do_config)" ]; then
-    echo "f_config  = do_config"
+    echo "t_config  = do_config"
   else
-    echo "f_config  = [none]"
+    echo "t_config  = [none]"
   fi
 
   if [ -n "$(type -t do_build)" ]; then
-    echo "f_build   = do_build"
+    echo "t_build   = do_build"
   else
-    echo "f_build   = [none]"
+    echo "t_build   = [none]"
   fi
 
   if [ -n "$(type -t do_install)" ]; then
-    echo "f_install = do_install"
+    echo "t_install = do_install"
   else
-    echo "f_install = [none]"
+    echo "t_install = [none]"
   fi
 
   if [ -n "$(type -t do_verify)" ]; then
-    echo "f_verify  = do_verify"
+    echo "t_verify  = do_verify"
   else
-    echo "f_verify  = [none]"
+    echo "t_verify  = [none]"
   fi
 
   if [ -n "$(type -t do_save)" ]; then
-    echo "f_save    = do_save"
+    echo "t_save    = do_save"
   else
-    echo "f_save    = [none]"
+    echo "t_save    = [none]"
   fi
 
   if [ -n "$(type -t do_push)" ]; then
-    echo "f_push    = do_push"
+    echo "t_push    = do_push"
   else
-    echo "f_push    = [none]"
+    echo "t_push    = [none]"
   fi
 
   if [ -n "$OPTS" ]; then
@@ -677,11 +677,11 @@ if [ $RSHOW -eq 1 ]; then
 fi
 
 #
-# stage: PROCOCEDURE-FUNCIONS
+# stage: PROCOCEDURE-TASKS
 #
-if [ $RFUNC -eq 1 ]; then
+if [ $RTASK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PROCEDURE-FUNCIONS"
+  echo "$ID: stage: PROCEDURE-TASKS"
 
   if [ -n "$(type -t do_init)" ]; then
     declare -f do_init
@@ -833,7 +833,7 @@ if [ $AINIT -eq 1 ]; then
     do_init
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_init"
+    echo "W: task not defined: do_init"
   fi
 fi
 
@@ -850,7 +850,7 @@ if [ $APULL -eq 1 ]; then
     do_pull
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_pull"
+    echo "W: task not defined: do_pull"
   fi
 fi
 
@@ -867,7 +867,7 @@ if [ $AUNPACK -eq 1 ]; then
     do_unpack
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_unpack"
+    echo "W: task not defined: do_unpack"
   fi
 fi
 
@@ -884,7 +884,7 @@ if [ $ACONFIG -eq 1 ]; then
     do_config
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_config"
+    echo "W: task not defined: do_config"
   fi
 fi
 
@@ -901,7 +901,7 @@ if [ $ABUILD -eq 1 ]; then
     do_build
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_build"
+    echo "W: task not defined: do_build"
   fi
 fi
 
@@ -919,7 +919,7 @@ if [ $AINSTALL -eq 1 ]; then
     ls -lh $DST
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_install"
+    echo "W: task not defined: do_install"
   fi
 fi
 
@@ -936,7 +936,7 @@ if [ $AVERIFY -eq 1 ]; then
     do_verify
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_verify"
+    echo "W: task not defined: do_verify"
   fi
 fi
 
@@ -954,7 +954,7 @@ if [ $ASAVE -eq 1 ]; then
     ls -lh $SRC
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_save"
+    echo "W: task not defined: do_save"
   fi
 fi
 
@@ -971,7 +971,7 @@ if [ $APUSH -eq 1 ]; then
     do_push
     { set +ex; } 2>/dev/null
   else
-    echo "W: function not defined: do_push"
+    echo "W: task not defined: do_push"
   fi
 fi
 

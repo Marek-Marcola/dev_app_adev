@@ -38,7 +38,8 @@ EEDIT=0
 TINIT=0
 TPULL=0
 TUNPACK=0
-TCONFIG=0
+TPATCH=0
+TCONFIGURE=0
 TBUILD=0
 TINSTALL=0
 TVERIFY=0
@@ -203,7 +204,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -c)
-      TCONFIG=1
+      TCONFIGURE=1
       shift
       ;;
     -b)
@@ -230,7 +231,7 @@ while [ $# -gt 0 ]; do
       TINIT=1
       TPULL=1
       TUNPACK=1
-      TCONFIG=1
+      TCONFIGURE=1
       TBUILD=1
       TINSTALL=1
       TVERIFY=1
@@ -302,7 +303,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -init                     # task init"
   echo "$SN -P                        # task pull"
   echo "$SN -u                        # task unpack"
-  echo "$SN -c                        # task config"
+  echo "$SN -c                        # task configure"
   echo "$SN -b                        # task build"
   echo "$SN -i                        # task install"
   echo "$SN -v                        # task verify"
@@ -472,88 +473,88 @@ if [ $QUIET -eq 0 ]; then
   echo "$ID: stage: INFO"
 
   [[ -n $INFO ]] && echo "info      = $INFO"
-  echo "cwd       = $(pwd -P)"
-  echo "OSN       = ${OSN:-[none]}"
-  echo "OSA       = ${OSA:-[none]}"
-  echo "OSE       = ${OSE:-[none]}"
-  echo "envs      = ${EFILE:-[none]}"
-  echo "proc      = ${RFILE:-[none]}"
-  echo "App       = ${A:-[none]}"
-  echo "APN       = ${APN:-[none]}"
-  echo "API       = ${API:-[none]}"
-  echo "Ver       = ${V:-[none]}"
-  echo "Src       = ${S:-[none]}"
-  echo "DST       = ${DST:-[none]}"
-  echo "src_uri   = ${SRC_URI:-[none]}"
-  echo "src_opt   = ${SRC_OPT:-[none]}"
-  echo "dst_uri   = ${DST_URI:-[none]}"
-  echo "wdir      = ${WDIR:-[none]}"
-  echo "edir      = ${EDIR:-[none]}"
-  echo "ldir      = ${LDIR:-[none]}"
-  echo "comm      = ${COMM:-[none]}"
+  echo "cwd         = $(pwd -P)"
+  echo "OSN         = ${OSN:-[none]}"
+  echo "OSA         = ${OSA:-[none]}"
+  echo "OSE         = ${OSE:-[none]}"
+  echo "envs        = ${EFILE:-[none]}"
+  echo "proc        = ${RFILE:-[none]}"
+  echo "App         = ${A:-[none]}"
+  echo "APN         = ${APN:-[none]}"
+  echo "API         = ${API:-[none]}"
+  echo "Ver         = ${V:-[none]}"
+  echo "Src         = ${S:-[none]}"
+  echo "DST         = ${DST:-[none]}"
+  echo "src_uri     = ${SRC_URI:-[none]}"
+  echo "src_opt     = ${SRC_OPT:-[none]}"
+  echo "dst_uri     = ${DST_URI:-[none]}"
+  echo "wdir        = ${WDIR:-[none]}"
+  echo "edir        = ${EDIR:-[none]}"
+  echo "ldir        = ${LDIR:-[none]}"
+  echo "comm        = ${COMM:-[none]}"
 
   if [ -n "$(type -t do_init)" ]; then
-    echo "t_init    = do_init"
+    echo "t_init      = do_init"
   else
-    echo "t_init    = [none]"
+    echo "t_init      = [none]"
   fi
 
   if [ -n "$(type -t do_pull)" ]; then
-    echo "t_pull    = do_pull"
+    echo "t_pull      = do_pull"
   else
-    echo "t_pull    = [none]"
+    echo "t_pull      = [none]"
   fi
 
   if [ -n "$(type -t do_unpack)" ]; then
-    echo "t_unpack  = do_unpack"
+    echo "t_unpack    = do_unpack"
   else
-    echo "t_unpack  = [none]"
+    echo "t_unpack    = [none]"
   fi
 
-  if [ -n "$(type -t do_config)" ]; then
-    echo "t_config  = do_config"
+  if [ -n "$(type -t do_configure)" ]; then
+    echo "t_configure = do_configure"
   else
-    echo "t_config  = [none]"
+    echo "t_configure = [none]"
   fi
 
   if [ -n "$(type -t do_build)" ]; then
-    echo "t_build   = do_build"
+    echo "t_build     = do_build"
   else
-    echo "t_build   = [none]"
+    echo "t_build     = [none]"
   fi
 
   if [ -n "$(type -t do_install)" ]; then
-    echo "t_install = do_install"
+    echo "t_install   = do_install"
   else
-    echo "t_install = [none]"
+    echo "t_install   = [none]"
   fi
 
   if [ -n "$(type -t do_verify)" ]; then
-    echo "t_verify  = do_verify"
+    echo "t_verify    = do_verify"
   else
-    echo "t_verify  = [none]"
+    echo "t_verify    = [none]"
   fi
 
   if [ -n "$(type -t do_save)" ]; then
-    echo "t_save    = do_save"
+    echo "t_save      = do_save"
   else
-    echo "t_save    = [none]"
+    echo "t_save      = [none]"
   fi
 
   if [ -n "$(type -t do_push)" ]; then
-    echo "t_push    = do_push"
+    echo "t_push      = do_push"
   else
-    echo "t_push    = [none]"
+    echo "t_push      = [none]"
   fi
 
   if [ -n "$OPTS" ]; then
-    echo "opts      = ${OPTS[@]}"
+    echo "opts        = ${OPTS[@]}"
   else
-    echo "opts      = [none]"
+    echo "opts        = [none]"
   fi
 
   if [ -n "$DOCS" ]; then
-    echo -n "docs      = "
+    echo -n "docs        = "
     for s in "${DOCS[@]}"; do
       echo "$s"
     done | sed '2,$s/^/            /'
@@ -697,9 +698,9 @@ if [ $RTASK -eq 1 ]; then
     declare -f do_unpack
   fi
 
-  if [ -n "$(type -t do_config)" ]; then
+  if [ -n "$(type -t do_configure)" ]; then
     echo
-    declare -f do_config
+    declare -f do_configure
   fi
 
   if [ -n "$(type -t do_build)" ]; then
@@ -872,19 +873,19 @@ if [ $TUNPACK -eq 1 ]; then
 fi
 
 #
-# stage: TASK-CONFIG
+# stage: TASK-CONFIGURE
 #
-if [ $TCONFIG -eq 1 ]; then
+if [ $TCONFIGURE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: TASK-CONFIG"
+  echo "$ID: stage: TASK-CONFIGURE"
 
-  if [ -n "$(type -t do_config)" ]; then
+  if [ -n "$(type -t do_configure)" ]; then
     set -ex
     cd $S
-    do_config
+    do_configure
     { set +ex; } 2>/dev/null
   else
-    echo "W: task not defined: do_config"
+    echo "W: task not defined: do_configure"
   fi
 fi
 

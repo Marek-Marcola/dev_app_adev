@@ -35,15 +35,15 @@ ELIST=0
 ELIST_RE=""
 ESHOW=0
 EEDIT=0
-AINIT=0
-APULL=0
-AUNPACK=0
-ACONFIG=0
-ABUILD=0
-AINSTALL=0
-AVERIFY=0
-ASAVE=0
-APUSH=0
+TINIT=0
+TPULL=0
+TUNPACK=0
+TCONFIG=0
+TBUILD=0
+TINSTALL=0
+TVERIFY=0
+TSAVE=0
+TPUSH=0
 EVAL=0
 HELP=0
 : ${QUIET:=0}
@@ -191,51 +191,51 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -init)
-      AINIT=1
+      TINIT=1
       shift
       ;;
     -P)
-      APULL=1
+      TPULL=1
       shift
       ;;
     -u)
-      AUNPACK=1
+      TUNPACK=1
       shift
       ;;
     -c)
-      ACONFIG=1
+      TCONFIG=1
       shift
       ;;
     -b)
-      ABUILD=1
+      TBUILD=1
       shift
       ;;
     -i)
-      AINSTALL=1
+      TINSTALL=1
       shift
       ;;
     -v)
-      AVERIFY=1
+      TVERIFY=1
       shift
       ;;
     -s)
-      ASAVE=1
+      TSAVE=1
       shift
       ;;
     -p)
-      APUSH=1
+      TPUSH=1
       shift
       ;;
     -bp)
-      AINIT=1
-      APULL=1
-      AUNPACK=1
-      ACONFIG=1
-      ABUILD=1
-      AINSTALL=1
-      AVERIFY=1
-      ASAVE=1
-      APUSH=1
+      TINIT=1
+      TPULL=1
+      TUNPACK=1
+      TCONFIG=1
+      TBUILD=1
+      TINSTALL=1
+      TVERIFY=1
+      TSAVE=1
+      TPUSH=1
       shift
       ;;
     -V)
@@ -821,11 +821,11 @@ if [ $EEDIT -eq 1 ]; then
 fi
 
 #
-# stage: APP-INIT
+# stage: TASK-INIT
 #
-if [ $AINIT -eq 1 ]; then
+if [ $TINIT -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-INIT"
+  echo "$ID: stage: TASK-INIT"
 
   if [ -n "$(type -t do_init)" ]; then
     set -ex
@@ -838,11 +838,11 @@ if [ $AINIT -eq 1 ]; then
 fi
 
 #
-# stage: APP-PULL
+# stage: TASK-PULL
 #
-if [ $APULL -eq 1 ]; then
+if [ $TPULL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-PULL"
+  echo "$ID: stage: TASK-PULL"
 
   if [ -n "$(type -t do_pull)" ]; then
     set -ex
@@ -855,11 +855,11 @@ if [ $APULL -eq 1 ]; then
 fi
 
 #
-# stage: APP-UNPACK
+# stage: TASK-UNPACK
 #
-if [ $AUNPACK -eq 1 ]; then
+if [ $TUNPACK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-UNPACK"
+  echo "$ID: stage: TASK-UNPACK"
 
   if [ -n "$(type -t do_unpack)" ]; then
     set -ex
@@ -872,11 +872,11 @@ if [ $AUNPACK -eq 1 ]; then
 fi
 
 #
-# stage: APP-CONFIG
+# stage: TASK-CONFIG
 #
-if [ $ACONFIG -eq 1 ]; then
+if [ $TCONFIG -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-CONFIG"
+  echo "$ID: stage: TASK-CONFIG"
 
   if [ -n "$(type -t do_config)" ]; then
     set -ex
@@ -889,11 +889,11 @@ if [ $ACONFIG -eq 1 ]; then
 fi
 
 #
-# stage: APP-BUILD
+# stage: TASK-BUILD
 #
-if [ $ABUILD -eq 1 ]; then
+if [ $TBUILD -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-BUILD"
+  echo "$ID: stage: TASK-BUILD"
 
   if [ -n "$(type -t do_build)" ]; then
     set -ex
@@ -906,11 +906,11 @@ if [ $ABUILD -eq 1 ]; then
 fi
 
 #
-# stage: APP-INSTALL
+# stage: TASK-INSTALL
 #
-if [ $AINSTALL -eq 1 ]; then
+if [ $TINSTALL -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-INSTALL"
+  echo "$ID: stage: TASK-INSTALL"
 
   if [ -n "$(type -t do_install)" ]; then
     set -ex
@@ -924,11 +924,11 @@ if [ $AINSTALL -eq 1 ]; then
 fi
 
 #
-# stage: APP-VERIFY
+# stage: TASK-VERIFY
 #
-if [ $AVERIFY -eq 1 ]; then
+if [ $TVERIFY -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-VERIFY"
+  echo "$ID: stage: TASK-VERIFY"
 
   if [ -n "$(type -t do_verify)" ]; then
     set -ex
@@ -941,11 +941,11 @@ if [ $AVERIFY -eq 1 ]; then
 fi
 
 #
-# stage: APP-SAVE
+# stage: TASK-SAVE
 #
-if [ $ASAVE -eq 1 ]; then
+if [ $TSAVE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-SAVE"
+  echo "$ID: stage: TASK-SAVE"
 
   if [ -n "$(type -t do_save)" ]; then
     set -ex
@@ -959,11 +959,11 @@ if [ $ASAVE -eq 1 ]; then
 fi
 
 #
-# stage: APP-PUSH
+# stage: TASK-PUSH
 #
-if [ $APUSH -eq 1 ]; then
+if [ $TPUSH -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-PUSH"
+  echo "$ID: stage: TASK-PUSH"
 
   if [ -n "$(type -t do_push)" ]; then
     set -ex
